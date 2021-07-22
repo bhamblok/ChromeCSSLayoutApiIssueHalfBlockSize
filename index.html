@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Houdini Layout API</title>
+<title>Issue1231978 - Reduced Test Case CSS Layout API - Bug</title>
 <style>
   @property --fixed-block-size {
     syntax: "<length>";
@@ -49,7 +49,10 @@ window.addEventListener('load', () => {
 </script>
 </head>
 <body>
-  <p>This "reduced test case" shows a bug in Chrome (93.0.4575.0 and up).</p>
+  <p>This "reduced test case" shows a bug in Chrome (93.0.4575.0 and up).
+    <br>
+    (Submitted as <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=1231978">https://bugs.chromium.org/p/chromium/issues/detail?id=1231978</a>)
+  </p>
   <p>It renders the div-elements below using the CSS (Houdini) Layout Api which, due to the bug, are rendered only half the blockSize as they should have been.</p>
   <p>The css below is the actual css being used, using &lt;style style="display: block" contenteditable="true"&gt; ... and thus is editable in realtime!!!</p>
   <p>The hight is being used as the value for fixedBlockSize as defined in the specs of the CSS Layout Api</p>
