@@ -48,7 +48,7 @@ window.addEventListener('load', () => {
 </script>
 </head>
 <body>
-  <p>This "reduced test case" shows a bug in Chrome (93.0.4575.0).</p>
+  <p>This "reduced test case" shows a bug in Chrome (93.0.4575.0 and up).</p>
   <p>It renders the div-elements below using the CSS (Houdini) Layout Api which, due to the bug, are rendered only half the blockSize as they should have been.</p>
   <p>The css below is the actual css being used, using &lt;style style="display: block" contenteditable="true"&gt; ... and thus is editable in realtime!!!</p>
   <p>The hight is being used as the value for fixedBlockSize as defined in the specs of the CSS Layout Api</p>
