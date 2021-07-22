@@ -1,0 +1,103 @@
+<html>
+<head>
+<title>Houdini Layout API</title>
+<style>
+  @property --fixed-block-size {
+    syntax: "<length>";
+    initial-value: 1px;
+    inherits: true;
+  }
+  style {
+    border: 2px dotted green;
+  }
+  .container {
+    display: layout(block-like);
+  }
+  .fyi-registerLayout {
+    border: dotted 1px darkgray;
+    padding-block: 2em;
+  }
+  .block {
+    width: 600px;
+    border: 1px solid red;
+    text-align: right;
+    padding-inline-end: 2em;
+  }
+  .block span {
+    font-size: 2em;
+    color: red;
+    margin-inline-start: 1em;
+  }
+</style>
+<script>
+if ('layoutWorklet' in CSS) {
+  CSS.layoutWorklet.addModule('./houdini-layout-api.js');
+}
+window.addEventListener('load', () => {
+  const resizeObserver = new ResizeObserver((entries) => {
+    entries.forEach((entry) => {
+      const definedHeight = [...entry.target.computedStyleMap()].find(entry => entry[0] === 'height')[1][0].value;
+      entry.target.innerHTML = `The defined height is: <span>${definedHeight}px</span>
+      <br>But the actual rendered height (offsetHeight) is: <span>${entry.target.offsetHeight}px</span>`;
+    });
+  });
+  [...document.querySelectorAll('.block')].forEach((block) => {
+    resizeObserver.observe(block);
+  });
+});
+</script>
+</head>
+<body>
+  <p>This "reduced test case" shows a bug in Chrome (93.0.4575.0).</p>
+  <p>It renders the div-elements below using the CSS (Houdini) Layout Api which, due to the bug, are rendered only half the blockSize as they should have been.</p>
+  <p>The css below is the actual css being used, using &lt;style style="display: block" contenteditable="true"&gt; ... and thus is editable in realtime!!!</p>
+  <p>The hight is being used as the value for fixedBlockSize as defined in the specs of the CSS Layout Api</p>
+  <p>To complete this reduces test case, the div-elements themselves have a resizeObserver, which tells us the css height value as well as the offsetHeight of each div... As you can see, the rendered value is only half the size as the defined value.</p>
+  <pre>
+    <style style="display: block;" contenteditable="true">
+      .block {
+        height: 200px;
+      }
+      .block + .block {
+        height: 300px;
+      }
+    </style>
+  </pre>
+  <div class="container">
+    <div class="block"></div>
+    <div class="block"></div>
+  </div>
+  <pre class="fyi-registerLayout">
+    // for your interest: this is the registerLayout function being used...
+
+    registerLayout('block-like', class {
+      static childInputProperties = [
+        'height',
+      ];
+    
+      async intrinsicSizes(children, edges, styleMap) {}
+    
+      async layout(children, edges, constraints, styleMap) {
+        const childFragments = await Promise.all(
+          children.map((child) => {
+            return child.layoutNextFragment({
+              fixedBlockSize: child.styleMap.get('height').value,
+            })
+          })
+        );
+        
+        let autoBlockSize = 0;
+        childFragments.forEach((fragment) => {
+          fragment.blockOffset = autoBlockSize;
+          autoBlockSize += fragment.blockSize;
+        });
+    
+        return {
+          autoBlockSize,
+          childFragments,
+        };
+      }
+    });    
+  </pre>
+</body>
+</html>
