@@ -1,6 +1,6 @@
 # ChromeCSSLayoutApiIssueHalfBlockSize
 
-This "reduced test case" shows a bug in Chrome (93.0.4575.0).
+This "reduced test case" shows a bug in Chrome (93.0.4575.0) or (94.0.4583.1).
 
 It renders the div-elements below using the CSS (Houdini) Layout Api which, due to the bug, are rendered only half the blockSize as they should have been.
 
