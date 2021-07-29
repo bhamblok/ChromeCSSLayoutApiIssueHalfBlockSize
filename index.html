@@ -38,8 +38,9 @@ window.addEventListener('load', () => {
   const resizeObserver = new ResizeObserver((entries) => {
     entries.forEach((entry) => {
       const definedHeight = [...entry.target.computedStyleMap()].find(entry => entry[0] === 'height')[1][0].value;
-      entry.target.innerHTML = `The defined height is: <span>${definedHeight}px</span>
-      <br>But the actual rendered height (offsetHeight) is: <span>${entry.target.offsetHeight}px</span>`;
+      const definedWidth = [...entry.target.computedStyleMap()].find(entry => entry[0] === 'width')[1][0].value;
+      entry.target.innerHTML = `Defined dimensions: <span>${definedWidth}x${definedHeight}</span>
+      <br>Actual dimensions: <span>${entry.target.offsetWidth}x${entry.target.offsetHeight}</span>`;
     });
   });
   [...document.querySelectorAll('.block')].forEach((block) => {
@@ -53,17 +54,20 @@ window.addEventListener('load', () => {
     <br>
     (Submitted as <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=1231978">https://bugs.chromium.org/p/chromium/issues/detail?id=1231978</a>)
   </p>
-  <p>It renders the div-elements below using the CSS (Houdini) Layout Api which, due to the bug, are rendered only half the blockSize as they should have been.</p>
+  <p>It renders the div-elements below using the CSS (Houdini) Layout Api which, due to the bug, are rendered only half the (inline- and block-)Size as they should have been.</p>
   <p>The css below is the actual css being used, using &lt;style style="display: block" contenteditable="true"&gt; ... and thus is editable in realtime!!!</p>
-  <p>The hight is being used as the value for fixedBlockSize as defined in the specs of the CSS Layout Api</p>
-  <p>To complete this reduces test case, the div-elements themselves have a resizeObserver, which tells us the css height value as well as the offsetHeight of each div... As you can see, the rendered value is only half the size as the defined value.</p>
+  <p>The width is being used as the value for fixedInlineSize as defined in the specs of the CSS Layout Api</p>
+  <p>The height is being used as the value for fixedBlockSize as defined in the specs of the CSS Layout Api</p>
+  <p>To complete this reduces test case, the div-elements themselves have a resizeObserver, which tells us the css width and height value as well as the offsetWidth and offsetHeight of each div... As you can see, the rendered value is only half the size as the defined value.</p>
   <pre>
     <style style="display: block;" contenteditable="true">
       .block {
-        height: 200px;
+        width: 500px;
+        height: 300px;
       }
       .block + .block {
-        height: 300px;
+        width: 600px;
+        height: 400px;
       }
     </style>
   </pre>
@@ -74,9 +78,10 @@ window.addEventListener('load', () => {
   <pre class="fyi-registerLayout">
     // for your interest: this is the registerLayout function being used...
 
-    registerLayout('block-like', class {
+    registerLayout('block-like', class {    
       static childInputProperties = [
         'height',
+        'width',
       ];
     
       async intrinsicSizes(children, edges, styleMap) {}
@@ -86,6 +91,7 @@ window.addEventListener('load', () => {
           children.map((child) => {
             return child.layoutNextFragment({
               fixedBlockSize: child.styleMap.get('height').value,
+              fixedInlineSize: child.styleMap.get('width').value,
             })
           })
         );
@@ -101,7 +107,8 @@ window.addEventListener('load', () => {
           childFragments,
         };
       }
-    });    
+    });
+       
   </pre>
 </body>
 </html>

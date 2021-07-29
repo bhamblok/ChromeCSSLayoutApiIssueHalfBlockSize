@@ -1,6 +1,12 @@
 registerLayout('block-like', class {
+  static layoutOptions = {
+    childDisplay: 'block',
+    sizing: 'manual',
+  };
+
   static childInputProperties = [
     'height',
+    'width',
   ];
 
   async intrinsicSizes(children, edges, styleMap) {}
@@ -10,6 +16,7 @@ registerLayout('block-like', class {
       children.map((child) => {
         return child.layoutNextFragment({
           fixedBlockSize: child.styleMap.get('height').value,
+          fixedInlineSize: child.styleMap.get('width').value,
         })
       })
     );
