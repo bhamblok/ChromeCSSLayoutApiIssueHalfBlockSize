@@ -14,10 +14,12 @@ registerLayout('block-like', class {
   async layout(children, edges, constraints, styleMap) {
     const childFragments = await Promise.all(
       children.map((child) => {
-        return child.layoutNextFragment({
+        const childConstraints = {
           fixedBlockSize: child.styleMap.get('height').value,
           fixedInlineSize: child.styleMap.get('width').value,
-        })
+        };
+        console.log(childConstraints);
+        return child.layoutNextFragment(childConstraints);
       })
     );
     

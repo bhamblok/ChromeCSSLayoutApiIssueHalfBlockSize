@@ -37,8 +37,9 @@ if ('layoutWorklet' in CSS) {
 window.addEventListener('load', () => {
   const resizeObserver = new ResizeObserver((entries) => {
     entries.forEach((entry) => {
-      const definedHeight = [...entry.target.computedStyleMap()].find(entry => entry[0] === 'height')[1][0].value;
-      const definedWidth = [...entry.target.computedStyleMap()].find(entry => entry[0] === 'width')[1][0].value;
+      const computedStyleMap = [...entry.target.computedStyleMap()];
+      const definedHeight = computedStyleMap.find(entry => entry[0] === 'height')[1][0].value;
+      const definedWidth = computedStyleMap.find(entry => entry[0] === 'width')[1][0].value;
       entry.target.innerHTML = `Defined dimensions: <span>${definedWidth}x${definedHeight}</span>
       <br>Actual dimensions: <span>${entry.target.offsetWidth}x${entry.target.offsetHeight}</span>`;
     });
